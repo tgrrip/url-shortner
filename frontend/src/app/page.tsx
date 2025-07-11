@@ -11,6 +11,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [customCode, setCustomCode] = useState('');
+  const [clicks, setClicks] = useState<number | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -18,11 +20,24 @@ export default function Home() {
     setError('');
     setShortUrl('');
     setCopied(false);
+    setClicks(null);
     try {
-      const response = await axios.post(API_URL, { long_url: longUrl });
+      const response = await axios.post(API_URL, { 
+        long_url: longUrl,
+        custom_code: customCode ? customCode : undefined 
+      });
       setShortUrl(response.data.short_url);
+      setClicks(response.data.clicks ?? 0);
     } catch (err: any) {
-      setError(err.response?.data?.detail[0]?.msg || 'Неверный URL или ошибка сервера.');
+      const detail = err.response?.data?.detail;
+      if (typeof detail == "string") {
+        setError(detail);
+      }
+        else if (Array.isArray(detail) && detail[0]?.msg) {
+          setError(detail[0].msg);
+      } else { 
+        setError("Неверный URL или ошибка сервера");
+      }
     } finally {
       setLoading(false);
     }
@@ -54,6 +69,19 @@ export default function Home() {
               required
             />
           </div>
+          <div>
+            <label htmlFor='customCode' className='block mb-2 text-sm font-medium text-gray-400'>
+              Кастомный короткий код
+            </label>
+            <input
+            id="customCode"
+            type="text"
+            value={customCode}
+            onChange={(e) => setCustomCode(e.target.value)}
+            placeholder='my-code123'
+            className='w-full p-3 rounded-lg bg-gray-700 border border-gray-600 foucus:outline-none focus: ring-2 focus:ring-cyan-500 text-white'>
+            </input>
+          </div>
           <button
             type="submit"
             disabled={loading}
@@ -83,6 +111,7 @@ export default function Home() {
                 {copied ? 'Скопировано!' : 'Копировать'}
               </button>
             </div>
+            <div className='text-sm text-gray-400'>Кликов по ссылке: {clicks ?? 0}</div>
           </div>
         )}
       </div>
