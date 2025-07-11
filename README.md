@@ -477,3 +477,4 @@ A simple web application for shortening URLs. This project demonstrates how to h
 1.  Клонируйте репозиторий.
 2.  **Бэкенд:** в папке `backend` выполните `pip install "fastapi[all]"` и `uvicorn main:app --reload`.
 3.  **Фронтенд:** в папке `frontend` выполните `pnpm install` и `pnpm dev`.
+# url-shortner
